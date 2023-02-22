@@ -5,6 +5,8 @@ from tesserocr import PyTessBaseAPI, PSM
 import pyautogui
 import time
 import csv
+import threading
+from timeit import default_timer
 
 csvDict = {}
 
@@ -120,10 +122,13 @@ problemIndex = 0
 #items = ["item17.png"]
 #items = ["test.png"]
 
+inputTime = 0.1
+
 def ds4Input(keyPress):
     pyautogui.keyDown(keyPress)
-    time.sleep(0.1) #so that inputs last long enough to register
+    time.sleep(inputTime) #so that inputs last long enough to register
     pyautogui.keyUp(keyPress)
+    return
 
 def PullGreyscaleImage(points):
     image = ImageGrab.grab(bbox = points) #image grab
@@ -133,6 +138,42 @@ def PullGreyscaleImage(points):
     image = cv2.resize(image ,None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
     image = Image.fromarray(image)
     return image
+
+def LatencyTest():
+    images = []
+    times = []
+    images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
+    start = default_timer()
+    times.append(start)
+    ###send input as thread
+    threading.Thread(target=ds4Input, args = ("f",)).start()
+    for i in range(15):
+        images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
+        times.append(default_timer())
+    for time in range(len(times)):
+        times[time] = round(times[time]-start,3)
+    for image in range(len(images)):
+        images[image] = np.array(images[image])
+        images[image] = cv2.cvtColor(images[image], cv2.COLOR_BGR2GRAY)
+        images[image] = cv2.bitwise_not(images[image])
+        images[image] = cv2.resize(images[image] ,None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
+        images[image] = Image.fromarray(images[image])
+    print(times)
+    with PyTessBaseAPI(psm=PSM.SINGLE_LINE) as api3:
+        api3.SetImage(images[0])
+        initialText = api3.GetUTF8Text().strip()
+        print("Initial text:", initialText)
+        for image in range(len(images)):
+            api3.SetImage(images[image])
+            text = api3.GetUTF8Text().strip()
+            print("Text",image,"-",text,"-",times[image])
+            if initialText == text:
+                pass
+            else:
+                print("Latency of", times[image])
+                return times[image]
+                break
+            
     
 def FindInventoryLength():
     #press R3 twice (sort by affinity from new)
@@ -322,8 +363,8 @@ def ReadImageLoop():
                 #print(" ".join(text))
                 #print(confid)
             if keep == False:
-                ds4Input("E")
-                #time.sleep(latency)
+                ds4Input("e")
+                #time.sleep(0.02)
             ds4Input("4")
             keep = False
             time.sleep(latency)
@@ -339,7 +380,17 @@ def ReadImageLoop():
         #clippingCorrected = cv2.cvtColor(clipping, cv2.COLOR_RGB2BGR)
         #cv2.imshow("Chaos?", clippingCorrected)
 
+latencies = []
+
+for i in range(12):
+    latencies.append(LatencyTest())
+    time.sleep(1.5)
+
+print((sum(latencies)/len(latencies))*1.1)
+latency = (sum(latencies)/len(latencies)*1.1) - inputTime
+print(latency)
+
 inventoryLength = FindInventoryLength()
 
-#ReadImageLoop()
+ReadImageLoop()
 
