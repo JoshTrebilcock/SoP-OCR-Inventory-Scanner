@@ -124,6 +124,8 @@ problemIndex = 0
 
 #inputTime = 0.1
 
+pyautogui.PAUSE = 0
+
 def ds4Input(keyPress):
     pyautogui.keyDown(keyPress)
     time.sleep(0.1) #so that inputs last long enough to register
@@ -252,6 +254,7 @@ def FindInventoryLength():
 
 def ReadImageLoop():
     global problemIndex
+    grabTime = 0
     preprocTime = 0
     symbolTime = 0
     cropTime = 0
@@ -263,11 +266,16 @@ def ReadImageLoop():
     with PyTessBaseAPI(psm=PSM.SINGLE_LINE) as api2:
         kernel = np.ones((8,8),np.uint8)
         for item in range(inventoryLength):
-            preprocStart = default_timer()
-            #preprocess start
+            #image grab start
+            grabStart = default_timer()
             keep = False
             #print("Item",item)
             effects = PullGreyscaleImage(effectsPoints)
+            grabEnd = default_timer()
+            grabTime += grabEnd-grabStart
+            #image grab end
+            #preprocess start
+            preprocStart = default_timer()
             colours = np.array(ImageGrab.grab(bbox = (667,604,669,790))) #image grab
             colours = cv2.blur(colours,(3,3))
             symbols = effects.crop(box = (symbolLeft, symbolTop[0], symbolLeft+symbolWidth, symbolTop[5]+symbolHeight))
@@ -284,8 +292,8 @@ def ReadImageLoop():
             preprocTime += preprocEnd-preprocStart
             #preprocess end
             for row in range(6):
-                symbolStart = default_timer()
                 #symbol start
+                symbolStart = default_timer()
                 numeral = []
                 scanned = False
                 vFound = False
@@ -318,8 +326,8 @@ def ReadImageLoop():
                 symbolEnd = default_timer()
                 symbolTime += symbolEnd-symbolStart
                 #symbol end
-                cropStart = default_timer()
                 #crop start
+                cropStart = default_timer()
                 if numeral == "":
                     clipping = effects.crop(box = (textLeft - symbolWidth, textTop[row], textLeft + textWidth, textTop[row]+ textHeight))
                 else:
@@ -327,16 +335,16 @@ def ReadImageLoop():
                 cropEnd = default_timer()
                 cropTime += cropEnd-cropStart
                 #crop end
-                ocrStart = default_timer()
                 #OCR start
+                ocrStart = default_timer()
                 api2.SetImage(clipping)
                 text = api2.GetUTF8Text().strip()
                 text = text.replace(";",":").replace(".","")
                 ocrEnd = default_timer()
                 ocrTime += ocrEnd-ocrStart
                 #OCR end
-                dictStart = default_timer()
                 #Dictionary start
+                dictStart = default_timer()
                 numeral = numeralsToNumbers[numeral]
                 try:
                     if numeral < csvDict[text]:
@@ -376,7 +384,7 @@ def ReadImageLoop():
                             print("Nothing detected")
                         #elif (sum(confidence)/len(confidence)) < 80:
                             #print(text, "- bad confidence of ", sum(confidence)/len(confidence))
-                        elif text not in csvDict and len(text) > 4 and text[0:7] != "Enables":
+                        elif text not in csvDict and numeral > 0:
                             print(text, "- still not found after dictionary check (kept) - row", row+1, "with confidence: ", sum(confidence)/len(confidence))
                             if problemIndex < 100:
                                 clipping = np.array(clipping)
@@ -407,6 +415,7 @@ def ReadImageLoop():
         totalEnd = default_timer()
         totalTime = totalEnd-totalStart
         print("")
+        print("Image grab time:", round(grabTime,3))
         print("Preprocess time:", round(preprocTime,3))
         print("Symbol time:", round(symbolTime,3))
         print("Crop time:", round(cropTime,3))
@@ -429,15 +438,17 @@ def ReadImageLoop():
 
 latencies = []
 
-for i in range(12):
+for i in range(24):
     latencies.append(LatencyTest())
-    time.sleep(1.5)
+    time.sleep(0.7)
 
 print((sum(latencies)/len(latencies)))
-latency = (sum(latencies)/len(latencies)*1.3)
+latency = (sum(latencies)/len(latencies)*1.1)
 print(latency)
 
-inventoryLength = 100 #FindInventoryLength()
+inventoryLength = FindInventoryLength()
 
 ReadImageLoop()
 
+print("")
+print(inventoryLength, "items scanned")
