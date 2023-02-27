@@ -5,16 +5,17 @@ from tesserocr import PyTessBaseAPI, PSM
 import pyautogui
 import time
 import csv
-#import threading
 from timeit import default_timer
 
 csvDict = {}
 
+#Import chaos effect values from csv
 with open("effects.csv", "r", newline="") as effectscsv:
     fileReader = csv.reader(effectscsv, delimiter=",")
     for i in fileReader:
         csvDict[i[0]] = int(i[1])
 
+#Numeral text to number conversion
 numeralsToNumbers = {
     "": 0,
     "I": 1,
@@ -29,6 +30,7 @@ numeralsToNumbers = {
     "X": 10
 }
 
+#Dictionary to match text that gets cut off in the UI, plus a few common errors
 problemEffects = {
     1: "MP recovery rate with",
     2: "Enemy weakness physical",
@@ -54,6 +56,7 @@ problemEffects = {
     22: "Charge Time Reduction: Lance Hull"
 }
 
+#Corresponding dictionary for full length texts from the above dictionary
 problemEffectsFull = {
     1: "MP Recovery Rate with Normal Attacks",
     2: "Enemy Weakness Physical Break Damage Dealt",
@@ -79,58 +82,57 @@ problemEffectsFull = {
     22: "Charge Time Reduction: Lance Hurl"
 }
 
-
+#Initial delay to leave time to open remote play in full screen
 time.sleep(7) #make longer - 10s or so
 
-latency = 0.05
+latency = 0.05 #Default, replaced by latency test
 
+#Coordinates for affinity (used in finding inventory length) and the chaos effects panel
 affinityPoints = (471, 304, 528, 329)
 effectsPoints = (642, 603, 948, 830)
 
+#Coordinates for chaos effect rows
 textLeft = 85
 textTop = [3]
 textWidth = 514
 textHeight = 69
 
+#Fills out the top coordinate values for the effects text
 for row in range(1,6):
     textTop.append(textTop[0] + (textTop[0] + textHeight)*(row))
 
-#upper = Top + (Top + Height)*row (where row is 0-5)
-#left = Left
-#lower = Top + Height
-#right = Left + Width
-
+#Coordinates for the chaos effect symbols
 symbolLeft = 14
 symbolTop = [2]
 symbolWidth = 72
 symbolHeight = 70
 
+#Fills out the top coordinate values for the symbols
 for row in range(1,6):
     symbolTop.append(symbolTop[0] + (symbolTop[0] + symbolHeight)*(row))
 
+#Coordinates for a column down the middle of the symbols, used to check the colours
 colourTop = [2]
 colourHeight = 36
 
+#Fills out the top coordinate values for the symbols
 for row in range(1,6):
     colourTop.append(colourTop[0] + (colourHeight*row))
 
+#Initial list and counter for images of rows that were not recognised
 problemClips = []
 problemIndex = 0
 
-
-#items = ["item1.png","item2.png","item3.png","item4.png","item5.png","item6.png","item7.png","item8.png","item9.png","item10.png","item11.png","item12.png","item13.png","item14.png","item15.png","item16.png","item17.png"]
-#items = ["item17.png"]
-#items = ["test.png"]
-
-#inputTime = 0.1
-
+#Removes the built-in pyautogui delay on each input
 pyautogui.PAUSE = 0
 
+#Sends a key input for 0.1s
 def ds4Input(keyPress):
     pyautogui.keyDown(keyPress)
     time.sleep(0.1) #so that inputs last long enough to register
     pyautogui.keyUp(keyPress)
 
+#Retrieves a grayscale image at the given coordinates, rescaled to 2x size
 def PullGreyscaleImage(points):
     image = ImageGrab.grab(bbox = points) #image grab
     image = np.array(image)
@@ -140,6 +142,8 @@ def PullGreyscaleImage(points):
     image = Image.fromarray(image)
     return image
 
+#Tests connection latency by changing the sort order, and then reading the text from a sequence
+#of images to determine when the image changed after the input finished
 def LatencyTest():
     images = []
     times = []
@@ -147,8 +151,6 @@ def LatencyTest():
     ds4Input("f")
     start = default_timer()
     times.append(start)
-    ###send input as thread
-    #threading.Thread(target=ds4Input, args = ("f",)).start()
     for i in range(15):
         images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
         times.append(default_timer())
@@ -175,8 +177,8 @@ def LatencyTest():
                 print("Latency of", times[image])
                 return times[image]
                 break
-            
-    
+
+#Scans for the length of the inventory, using Job Affinity sort order as a reference
 def FindInventoryLength():
     #press R3 twice (sort by affinity from new)
     ds4Input("f")
@@ -246,12 +248,8 @@ def FindInventoryLength():
         ds4Input("f")
         time.sleep(latency)
         return itemTotal
-        #affinity = np.array(affinity)
-        #affinityCorrected = cv2.cvtColor(affinity, cv2.COLOR_RGB2BGR)
-        #cv2.imshow("Chaos?", affinityCorrected)
 
-
-
+#The main loop, reads the chaos effects from each item, and marks them accordingly
 def ReadImageLoop():
     global problemIndex
     grabTime = 0
@@ -269,7 +267,6 @@ def ReadImageLoop():
             #image grab start
             grabStart = default_timer()
             keep = False
-            #print("Item",item)
             effects = PullGreyscaleImage(effectsPoints)
             grabEnd = default_timer()
             grabTime += grabEnd-grabStart
@@ -281,8 +278,6 @@ def ReadImageLoop():
             symbols = effects.crop(box = (symbolLeft, symbolTop[0], symbolLeft+symbolWidth, symbolTop[5]+symbolHeight))
             symbols = np.array(symbols)
             symbols = cv2.medianBlur(symbols,3)
-            #structure = cv2.threshold(symbols,20,255,cv2.THRESH_BINARY_INV)[1]
-            #structure = cv2.dilate(structure, kernel, iterations=2)
             symbols = cv2.threshold(symbols,50,255,cv2.THRESH_BINARY)[1]
             symbols = cv2.medianBlur(symbols,3)
             effects = np.array(effects)
@@ -301,9 +296,7 @@ def ReadImageLoop():
                 topLine = np.array(symbols[symbolTop[row] + 22,:])
                 middleLine = np.array(symbols[symbolTop[row] + 32,:])
                 bottomLine = np.array(symbols[symbolTop[row] + 42,:])
-                #structureLine = np.array(structure[symbolTop[row] + 32,:])
                 i = 0
-                #print(str(symbolColour))
                 if symbolColour < 20:
                     numeral = ""
                 else:
@@ -351,7 +344,6 @@ def ReadImageLoop():
                         pass
                     else:
                         keep = True
-                        #print("keep", text, numeral)
                 except:
                     try:
                         if text[0:7] == "Enables":
@@ -370,8 +362,6 @@ def ReadImageLoop():
                                         keep = True
                                         #print("Entry -", text, "- corrected")
                                         break
-                            #if replaced == False:
-                                #print("End of for loop reached -", text, "- not replaced")
                     except:
                         print(text, "- error during problemEffects dict check")
                     else:
@@ -382,8 +372,6 @@ def ReadImageLoop():
                             #problemClips.append(clipping)
                             #problemIndex += 1
                             print("Nothing detected")
-                        #elif (sum(confidence)/len(confidence)) < 80:
-                            #print(text, "- bad confidence of ", sum(confidence)/len(confidence))
                         elif text not in csvDict and numeral > 0:
                             print(text, "- still not found after dictionary check (kept) - row", row+1, "with confidence: ", sum(confidence)/len(confidence))
                             if problemIndex < 100:
@@ -395,17 +383,10 @@ def ReadImageLoop():
                 dictEnd = default_timer()
                 dictTime += dictEnd-dictStart
                 #Dictionary end
-                #api2.Recognize()
-                #text = api2.AllWords()
-                #confid = api2.AllWordConfidences()
-                #print(text)
-                #print(" ".join(text))
-                #print(confid)
             #input start
             uiStart = default_timer()
             if keep == False:
                 ds4Input("e")
-                #time.sleep(0.02)
             ds4Input("4")
             keep = False
             time.sleep(latency)
@@ -427,27 +408,24 @@ def ReadImageLoop():
         for img in range (0,problemIndex):
             cv2.imshow("Chaos?", problemClips[img])
             cv2.waitKey(0)
-        #screenshot = np.array(screenshot)
-        #screenshotCorrected = cv2.cvtColor(screenshot, cv2.COLOR_RGB2BGR)
-        #cv2.imshow("Chaos?", screenshotCorrected)
-        #symbolsCorrected = cv2.cvtColor(symbols, cv2.COLOR_RGB2BGR)
-        #cv2.imshow("Chaos?", symbolsCorrected)
-        #clipping = np.array(clipping)
-        #clippingCorrected = cv2.cvtColor(clipping, cv2.COLOR_RGB2BGR)
-        #cv2.imshow("Chaos?", clippingCorrected)
 
+#List for recorded latencies
 latencies = []
 
+#Test latency 24 times
 for i in range(24):
     latencies.append(LatencyTest())
     time.sleep(0.7)
 
+#Debug/info print latency test results
 print((sum(latencies)/len(latencies)))
 latency = (sum(latencies)/len(latencies)*1.1)
 print(latency)
 
+#Get inventory length
 inventoryLength = FindInventoryLength()
 
+#Do the inventory scanning thing
 ReadImageLoop()
 
 print("")
