@@ -5,6 +5,8 @@ from tesserocr import PyTessBaseAPI, PSM
 import pyautogui
 import time
 import csv
+#import threading
+from timeit import default_timer
 
 csvDict = {}
 
@@ -120,6 +122,10 @@ problemIndex = 0
 #items = ["item17.png"]
 #items = ["test.png"]
 
+#inputTime = 0.1
+
+pyautogui.PAUSE = 0
+
 def ds4Input(keyPress):
     pyautogui.keyDown(keyPress)
     time.sleep(0.1) #so that inputs last long enough to register
@@ -133,6 +139,43 @@ def PullGreyscaleImage(points):
     image = cv2.resize(image ,None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
     image = Image.fromarray(image)
     return image
+
+def LatencyTest():
+    images = []
+    times = []
+    images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
+    ds4Input("f")
+    start = default_timer()
+    times.append(start)
+    ###send input as thread
+    #threading.Thread(target=ds4Input, args = ("f",)).start()
+    for i in range(15):
+        images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
+        times.append(default_timer())
+    for time in range(len(times)):
+        times[time] = round(times[time]-start,3)
+    for image in range(len(images)):
+        images[image] = np.array(images[image])
+        images[image] = cv2.cvtColor(images[image], cv2.COLOR_BGR2GRAY)
+        images[image] = cv2.bitwise_not(images[image])
+        images[image] = cv2.resize(images[image] ,None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
+        images[image] = Image.fromarray(images[image])
+    print(times)
+    with PyTessBaseAPI(psm=PSM.SINGLE_LINE) as api3:
+        api3.SetImage(images[0])
+        initialText = api3.GetUTF8Text().strip()
+        print("Initial text:", initialText)
+        for image in range(len(images)):
+            api3.SetImage(images[image])
+            text = api3.GetUTF8Text().strip()
+            print("Text",image,"-",text,"-",times[image])
+            if initialText == text:
+                pass
+            else:
+                print("Latency of", times[image])
+                return times[image]
+                break
+            
     
 def FindInventoryLength():
     #press R3 twice (sort by affinity from new)
@@ -211,12 +254,28 @@ def FindInventoryLength():
 
 def ReadImageLoop():
     global problemIndex
+    grabTime = 0
+    preprocTime = 0
+    symbolTime = 0
+    cropTime = 0
+    ocrTime = 0
+    dictTime = 0
+    uiTime = 0
+    totalTime = 0
+    totalStart = default_timer()
     with PyTessBaseAPI(psm=PSM.SINGLE_LINE) as api2:
         kernel = np.ones((8,8),np.uint8)
         for item in range(inventoryLength):
+            #image grab start
+            grabStart = default_timer()
             keep = False
             #print("Item",item)
             effects = PullGreyscaleImage(effectsPoints)
+            grabEnd = default_timer()
+            grabTime += grabEnd-grabStart
+            #image grab end
+            #preprocess start
+            preprocStart = default_timer()
             colours = np.array(ImageGrab.grab(bbox = (667,604,669,790))) #image grab
             colours = cv2.blur(colours,(3,3))
             symbols = effects.crop(box = (symbolLeft, symbolTop[0], symbolLeft+symbolWidth, symbolTop[5]+symbolHeight))
@@ -229,7 +288,12 @@ def ReadImageLoop():
             effects = np.array(effects)
             effects = cv2.medianBlur(effects,3)
             effects = Image.fromarray(effects)
+            preprocEnd = default_timer()
+            preprocTime += preprocEnd-preprocStart
+            #preprocess end
             for row in range(6):
+                #symbol start
+                symbolStart = default_timer()
                 numeral = []
                 scanned = False
                 vFound = False
@@ -259,15 +323,28 @@ def ReadImageLoop():
                             scanned = False
                         i += 1
                 numeral = "".join(numeral)
+                symbolEnd = default_timer()
+                symbolTime += symbolEnd-symbolStart
+                #symbol end
+                #crop start
+                cropStart = default_timer()
                 if numeral == "":
                     clipping = effects.crop(box = (textLeft - symbolWidth, textTop[row], textLeft + textWidth, textTop[row]+ textHeight))
                 else:
                     clipping = effects.crop(box = (textLeft, textTop[row], textLeft + textWidth, textTop[row] + textHeight))
-                #clipping2 = symbols.crop(box = (0, 72*row, 69, (72*row)+72))
-                #clipping = screenshot.crop(box = (effectsLeft, effectsTop[row], effectsLeft + effectsWidth, effectsTop[row] + effectsHeight))
+                cropEnd = default_timer()
+                cropTime += cropEnd-cropStart
+                #crop end
+                #OCR start
+                ocrStart = default_timer()
                 api2.SetImage(clipping)
                 text = api2.GetUTF8Text().strip()
                 text = text.replace(";",":").replace(".","")
+                ocrEnd = default_timer()
+                ocrTime += ocrEnd-ocrStart
+                #OCR end
+                #Dictionary start
+                dictStart = default_timer()
                 numeral = numeralsToNumbers[numeral]
                 try:
                     if numeral < csvDict[text]:
@@ -307,7 +384,7 @@ def ReadImageLoop():
                             print("Nothing detected")
                         #elif (sum(confidence)/len(confidence)) < 80:
                             #print(text, "- bad confidence of ", sum(confidence)/len(confidence))
-                        elif text not in csvDict and len(text) > 4 and text[0:7] != "Enables":
+                        elif text not in csvDict and numeral > 0:
                             print(text, "- still not found after dictionary check (kept) - row", row+1, "with confidence: ", sum(confidence)/len(confidence))
                             if problemIndex < 100:
                                 clipping = np.array(clipping)
@@ -315,18 +392,38 @@ def ReadImageLoop():
                                 problemClips.append(clipping)
                                 problemIndex += 1
                             keep = True
+                dictEnd = default_timer()
+                dictTime += dictEnd-dictStart
+                #Dictionary end
                 #api2.Recognize()
                 #text = api2.AllWords()
                 #confid = api2.AllWordConfidences()
                 #print(text)
                 #print(" ".join(text))
                 #print(confid)
+            #input start
+            uiStart = default_timer()
             if keep == False:
-                ds4Input("E")
-                #time.sleep(latency)
+                ds4Input("e")
+                #time.sleep(0.02)
             ds4Input("4")
             keep = False
             time.sleep(latency)
+            #input end
+            uiEnd = default_timer()
+            uiTime += uiEnd-uiStart
+        totalEnd = default_timer()
+        totalTime = totalEnd-totalStart
+        print("")
+        print("Image grab time:", round(grabTime,3))
+        print("Preprocess time:", round(preprocTime,3))
+        print("Symbol time:", round(symbolTime,3))
+        print("Crop time:", round(cropTime,3))
+        print("OCR time:", round(ocrTime,3))
+        print("Dictionary time:", round(dictTime,3))
+        print("Input time:", round(uiTime,3))
+        print("")
+        print("Total time:", round(totalTime,3))
         for img in range (0,problemIndex):
             cv2.imshow("Chaos?", problemClips[img])
             cv2.waitKey(0)
@@ -339,7 +436,19 @@ def ReadImageLoop():
         #clippingCorrected = cv2.cvtColor(clipping, cv2.COLOR_RGB2BGR)
         #cv2.imshow("Chaos?", clippingCorrected)
 
+latencies = []
+
+for i in range(24):
+    latencies.append(LatencyTest())
+    time.sleep(0.7)
+
+print((sum(latencies)/len(latencies)))
+latency = (sum(latencies)/len(latencies)*1.1)
+print(latency)
+
 inventoryLength = FindInventoryLength()
 
-#ReadImageLoop()
+ReadImageLoop()
 
+print("")
+print(inventoryLength, "items scanned")

@@ -1,0 +1,324 @@
+HP,6
+Break,6
+Strength,6
+Stamina,6
+Intellect,6
+Spirit,6
+Agility,6
+Luck,6
+All Damage Dealt,8
+Break Damage Dealt,8
+Physical Damage Dealt,8
+Physical Break Damage Dealt,8
+Slash Damage Dealt,8
+Strike Damage Dealt,8
+Pierce Damage Dealt,8
+Slash Break Damage Dealt,8
+Strike Break Damage Dealt,8
+Pierce Break Damage Dealt,8
+Magic Damage Dealt,8
+Magic Break Damage Dealt,8
+Fire Damage Dealt,8
+Ice Damage Dealt,8
+Lightning Damage Dealt,8
+Water Damage Dealt,8
+Wind Damage Dealt,8
+Earth Damage Dealt,8
+Dark Damage Dealt,8
+Holy Damage Dealt,8
+Fire Break Damage Dealt,8
+Ice Break Damage Dealt,8
+Lightning Break Damage Dealt,8
+Water Break Damage Dealt,8
+Wind Break Damage Dealt,8
+Earth Break Damage Dealt,8
+Dark Break Damage Dealt,8
+Holy Break Damage Dealt,8
+Non-Elemental Damage Dealt,8
+Non-Elemental Break Damage Dealt,8
+Imbue Fire,7
+Imbue Ice,7
+Imbue Lightning,7
+Imbue Water,7
+Imbue Wind,7
+Imbue Earth,7
+Imbue Dark,7
+Imbue Holy,7
+Ability Damage Dealt,8
+Ability Break Damage Dealt,8
+Critical Damage Dealt,7
+Critical Break Damage Dealt,7
+Damage Dealt at Max HP,8
+Break Damage Dealt at Max HP,8
+Near Death: Damage Dealt,7
+Damage Dealt at Max Break,8
+Break Damage Dealt at Max Break,8
+Enemy Weakness Damage Dealt,8
+Enemy Weakness Break Damage Dealt,8
+Enemy Weakness Physical Break Damage Dealt,8
+Afflicted Enemy: Damage Dealt,8
+Afflicted Enemy: Break Damage Dealt,8
+Afflicted Enemy: Physical Damage Dealt,8
+Afflicted Enemy: Magic Damage Dealt,8
+During Lightbringer: Damage Dealt,7
+During Lightbringer: Break Damage Dealt,7
+Instant Ability Damage Dealt,8
+Instant Ability Break Damage,8
+Charge Attack Damage Dealt,8
+Charge Attack Break Damage Dealt,8
+All Damage Taken,8
+Break Damage Taken,7
+Physical Damage Taken,8
+Physical Break Damage Taken,8
+Slash Resistance,11
+Strike Resistance,11
+Pierce Resistance,11
+Slash Break Damage Taken,11
+Strike Break Damage Taken,11
+Pierce Break Damage Taken,11
+Magic Resistance,8
+Magic Break Damage Taken,8
+Fire Resistance,11
+Ice Resistance,11
+Lightning Resistance,11
+Water Resistance,11
+Wind Resistance,11
+Earth Resistance,11
+Dark Resistance,11
+Holy Resistance,11
+Fire Break Damage Taken,11
+Ice Break Damage Taken,11
+Lightning Break Damage Taken,11
+Water Break Damage Taken,11
+Wind Break Damage Taken,11
+Earth Break Damage Taken,11
+Dark Break Damage Taken,11
+Holy Break Damage Taken,11
+Non-Elemental Resistance,11
+Non-Elemental Break Damage Taken,11
+Damage Taken at Max HP,7
+Near Death: Damage Taken,7
+During Lightbringer: Damage Taken,8
+Damage Reduction While Attacking,8
+Status Ailment Resistance,6
+Poison Resistance,99
+Paralysis Resistance,99
+Petrification Resistance,99
+Silence Resistance,99
+Curse Resistance,99
+Slow Resistance,99
+Fire Vulnerability Resistance,99
+Ice Vulnerability Resistance,99
+Lightning Vulnerability Resistance,99
+Water Vulnerability Resistance,99
+Wind Vulnerability Resistance,99
+Earth Vulnerability Resistance,99
+Dark Vulnerability Resistance,99
+Holy Vulnerability Resistance,99
+HP Recovery Amount,7
+Elemental Vulnerability Resistance,99
+Potion Recovery Amount,7
+Critical: HP Recovery,7
+MP Recovery Rate with Normal Attacks,7
+Action Ability MP Cost,7
+Parry: MP Recovery,7
+Soul Shield: MP Recovery,7
+Soul Burst: MP Recovery,8
+Break Gauge Recovery Speed,8
+Faster Guard Break Recovery,8
+Guard Break Gauge Depletion,7
+Soul Shield Break Cost,7
+Lightbringer Duration,6
+Buff Duration,6
+Status Ailment Accumulation,6
+Drop Rate,6
+EXP Earned,99
+Buff Duration: Interception,6
+Buff Duration: War Cry,7
+Buff Duration: Blessing of Light,6
+Buff Duration: Berserk,7
+Buff Duration: Focus,6
+Buff Duration: Meikyo-Shisui,6
+Buff Duration: Enchant,7
+Buff Duration: Reinforce,7
+Buff Duration: Summon Tachi,7
+Buff Duration: Counter,7
+Buff Duration: Blood Weapon,7
+Buff Duration: Venom,8
+Buff Duration: Mighty Strikes,7
+Buff Duration: Lunatic,7
+Buff Duration: Flee,8
+Buff Duration: Chakra,8
+Buff Duration: Magic Regen,7
+Buff Duration: Lancet,7
+Buff Duration: Zanshin,7
+Buff Duration: Jubaku,7
+Buff Duration: Bravery,7
+Buff Duration: Runic Protection,7
+Buff Duration: Magic Arts,7
+Buff Duration: Teleport,7
+Buff Duration: Onslaught,7
+Buff Duration: Boost Magic,7
+Buff Duration: Azure Lore,7
+Buff Duration: Barrage,6
+Damage Dealt: Interception,6
+Damage Dealt: Spinning Slash,6
+Damage Dealt: Iai-Giri,6
+Damage Dealt: Explosive Fist,6
+Damage Dealt: Upheaval,6
+Damage Dealt: Magic,6
+Damage Dealt: Weak Spot,6
+Damage Dealt: Lance Hurl,6
+Damage Dealt: Dazing Bullet,6
+Damage Dealt: Blessing of Light,6
+Damage Dealt: White Magic,6
+Damage Dealt: Black Magic,6
+Damage Dealt: Chainspell,6
+Damage Dealt: Jump,6
+Damage Dealt: Souleater,6
+Damage Dealt: Holy Fang,6
+Damage Dealt: Ninjutsu,6
+Damage Dealt: Assassinate,6
+Damage Dealt: Zantetsuken,6
+Damage Dealt: Runic,6
+Damage Dealt: Magic Sigil,6
+Damage Dealt: Soul of Chaos,6
+Damage Dealt: Assault Hook,6
+Damage Dealt: Summon,6
+Damage Dealt: Blue Magic,6
+Damage Dealt: Shield Bash,6
+Damage Dealt: Ruin,6
+Damage Dealt: Drain,6
+Damage Dealt: Overpower,6
+Improved Effect: War Cry,6
+Improved Effect: Berserk,6
+Improved Effect: Focus,6
+Improved Effect: Meikyo-Shisui,6
+Improved Effect: Mighty Guard,6
+Improved Effect: Enchant,6
+Improved Effect: Evocation,7
+Improved Effect: Analyze,6
+Improved Effect: Summon Tachi,6
+Improved Effect: Counter,8
+Improved Effect: Blood Weapon,8
+Improved Effect: Venom,8
+Improved Effect: Swayback,7
+Improved Effect: Flee,8
+Improved Effect: Divine Sigil,8
+Improved Effect: Seal of Blood,6
+Improved Effect: Magic Regen,6
+Improved Effect: Lancet,6
+Improved Effect: Zanshin,8
+Improved Effect: Drain,8
+Improved Effect: Sentinel,6
+Improved Effect: Jubaku,8
+Improved Effect: Invisible,6
+Improved Effect: Bravery,6
+Improved Effect: Runic Protection,6
+Improved Effect: Magic Arts,7
+Improved Effect: Chaosbringer,8
+Improved Effect: Onslaught,6
+Improved Effect: Pray,8
+Improved Effect: Boost Magic,7
+Improved Effect: Azure Lore,6
+Improved Effect: Rapid Cancel,6
+Improved Effect: Barrage,6
+Improved Effect: Blackjack,6
+MP Cost: Interception,8
+MP Cost: Spinning Slash,8
+MP Cost: Iai-Giri,8
+MP Cost: Explosive Fist,8
+MP Cost: Upheaval,8
+MP Cost: Magic,8
+MP Cost: Weak Spot,8
+MP Cost: Lance Hurl,8
+MP Cost: Dazing Bullet,8
+MP Cost: War Cry,7
+MP Cost: Blessing of Light,6
+MP Cost: Berserk,11
+MP Cost: Steal,7
+MP Cost: Focus,7
+MP Cost: White Magic,6
+MP Cost: Black Magic,6
+MP Cost: Chainspell,6
+MP Cost: Jump,6
+MP Cost: Meikyo-Shisui,6
+MP Cost: Assassinate,7
+MP Cost: Zantetsuken,6
+MP Cost: Enchant,7
+MP Cost: Magic Sigil,6
+MP Cost: Assault Hook,8
+MP Cost: Evocation,7
+MP Cost: Blue Magic,6
+MP Cost: Shield Bash,7
+MP Cost: Reinforce,7
+MP Cost: Summon Tachi,7
+MP Cost: Counter,7
+MP Cost: Blood Weapon,8
+MP Cost: Ruin,8
+MP Cost: Venom,8
+MP Cost: Swayback,7
+MP Cost: Mighty Strikes,7
+MP Cost: Provoke,8
+MP Cost: Lunatic,7
+MP Cost: Flee,8
+MP Cost: Chakra,7
+MP Cost: Divine Sigil,8
+MP Cost: Seal of Blood,7
+MP Cost: Magic Regen,7
+MP Cost: Lancet,7
+MP Cost: Zanshin,8
+MP Cost: Drain,8
+MP Cost: Sentinel,7
+MP Cost: Jubaku,8
+MP Cost: Invisible,7
+MP Cost: Bravery,7
+MP Cost: Overpower,7
+MP Cost: Runic Protection,7
+MP Cost: Magic Arts,7
+MP Cost: Teleport,7
+MP Cost: Onslaught,7
+MP Cost: Pray,8
+MP Cost: Boost Magic,7
+MP Cost: Azure Lore,7
+MP Cost: Rapid Cancel,7
+MP Cost: Barrage,7
+MP Cost: Blackjack,7
+MP Cost: Analyze,7
+MP Cost: Roulette,7
+Charge Time Reduction: Iai-Giri,6
+Charge Time Reduction: Upheaval,6
+Charge Time Reduction: Magic,6
+Charge Time Reduction: Lance Hurl,6
+Charge Time Reduction: Focus,6
+Charge Time Reduction: White Magic,6
+Charge Time Reduction: Black Magic,6
+Charge Time Reduction: Chainspell,6
+Charge Time Reduction: Zantetsuken,6
+Charge Time Reduction: Enchant,6
+Charge Time Reduction: Magic Sigil,6
+Charge Time Reduction: Blue Magic,6
+Ailment Buildup When Damaged: Runic,7
+Improved Effect: Steal,0
+Damage Dealt: Sword: Combo Ability,6
+Damage Dealt: Greatsword: Combo Ability,6
+Damage Dealt: Axe: Combo Ability,6
+Damage Dealt: Lance: Combo Ability,6
+Damage Dealt: Katana: Combo Ability,6
+Damage Dealt: Dagger: Combo Ability,6
+Damage Dealt: Knuckles: Combo Ability,6
+Damage Dealt: Mace: Combo Ability,6
+Damage Dealt: Staff: Combo Ability,6
+Damage Dealt: Gun: Combo Ability,6
+MP Cost: Sword: Combo Ability,6
+MP Cost: Greatsword: Combo Ability,6
+MP Cost: Axe: Combo Ability,6
+MP Cost: Lance: Combo Ability,6
+MP Cost: Katana: Combo Ability,6
+MP Cost: Dagger: Combo Ability,6
+MP Cost: Knuckles: Combo Ability,6
+MP Cost: Mace: Combo Ability,6
+MP Cost: Staff: Combo Ability,6
+MP Cost: Gun: Combo Ability,6
+Refill Break Gauge on Attack,7
+Weakness Break Gauge Recovery,7
