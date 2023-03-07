@@ -87,9 +87,14 @@ time.sleep(7) #make longer - 10s or so
 
 latency = 0.05 #Default, replaced by latency test
 
+#Take screenshot of entire screen, record width and height
+screenWidth, screenHeight = ImageGrab.grab().size
+
 #Coordinates for affinity (used in finding inventory length) and the chaos effects panel
 affinityPoints = (471, 304, 528, 329)
 effectsPoints = (642, 603, 948, 830)
+sortPoints = (348, 973, 538, 1001)
+colourScanPoints = (667,604,669,790)
 
 #Coordinates for chaos effect rows
 textLeft = 85
@@ -126,33 +131,42 @@ problemIndex = 0
 #Removes the built-in pyautogui delay on each input
 pyautogui.PAUSE = 0
 
+#Adjust coordinates to screen size
+def AdjustCoordinates(coords):
+    left, upper, right, lower = coords
+    left = round(left * (screenHeight/1080) + (screenWidth-(screenHeight*1.7777777))/2)
+    upper = round(upper * (screenHeight/1080))
+    right = round(right * (screenHeight/1080) + (screenWidth-(screenHeight*1.7777777))/2)
+    lower = round(lower * (screenHeight/1080))
+    return (left, upper, right, lower)
+
 #Sends a key input for 0.1s
 def ds4Input(keyPress):
     pyautogui.keyDown(keyPress)
     time.sleep(0.1) #so that inputs last long enough to register
     pyautogui.keyUp(keyPress)
 
-#Retrieves a grayscale image at the given coordinates, rescaled to 2x size
-def PullGreyscaleImage(points):
+#Retrieves a grayscale image at the given coordinates, rescaled to a set size
+def PullGreyscaleImage(points, width, height):
     image = ImageGrab.grab(bbox = points) #image grab
     image = np.array(image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     image = cv2.bitwise_not(image)
-    image = cv2.resize(image ,None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
+    image = cv2.resize(image, (width, height), 0, 0, interpolation = cv2.INTER_CUBIC)
     image = Image.fromarray(image)
     return image
 
 #Tests connection latency by changing the sort order, and then reading the text from a sequence
-#of images to determine when the image changed after the input finished
+# of images to determine when the image changed after the input finished
 def LatencyTest():
     images = []
     times = []
-    images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
+    images.append(ImageGrab.grab(bbox = sortPoints)) #############
     ds4Input("f")
     start = default_timer()
     times.append(start)
     for i in range(15):
-        images.append(ImageGrab.grab(bbox = (348, 973, 538, 1001)))
+        images.append(ImageGrab.grab(bbox = sortPoints)) ###########
         times.append(default_timer())
     for time in range(len(times)):
         times[time] = round(times[time]-start,3)
@@ -160,7 +174,7 @@ def LatencyTest():
         images[image] = np.array(images[image])
         images[image] = cv2.cvtColor(images[image], cv2.COLOR_BGR2GRAY)
         images[image] = cv2.bitwise_not(images[image])
-        images[image] = cv2.resize(images[image] ,None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
+        images[image] = cv2.resize(images[image], (380, 56), 0, 0, interpolation = cv2.INTER_CUBIC)
         images[image] = Image.fromarray(images[image])
     print(times)
     with PyTessBaseAPI(psm=PSM.SINGLE_LINE) as api3:
@@ -189,7 +203,7 @@ def FindInventoryLength():
     increments = 0
     with PyTessBaseAPI(psm=PSM.SINGLE_WORD) as api:
         api.SetVariable("tessedit_char_whitelist","1234567890%")
-        affinity = PullGreyscaleImage(affinityPoints)
+        affinity = PullGreyscaleImage(affinityPoints, 114, 50)
         api.SetImage(affinity)
         affinityPrevious = int(api.GetUTF8Text().replace("%","")) #Set initial affinity for page scroll
         #Press down on D-Pad 2x
@@ -201,7 +215,7 @@ def FindInventoryLength():
         ds4Input("3")
         time.sleep(latency)
         while True:
-            affinity = PullGreyscaleImage(affinityPoints)
+            affinity = PullGreyscaleImage(affinityPoints, 114, 50)
             api.SetImage(affinity)
             affinityCurrent = int(api.GetUTF8Text().replace("%",""))
             print(affinityCurrent, ">", affinityPrevious)
@@ -220,12 +234,12 @@ def FindInventoryLength():
             #Press right on D-Pad
             ds4Input("3")
             time.sleep(latency)
-        affinity = PullGreyscaleImage(affinityPoints)
+        affinity = PullGreyscaleImage(affinityPoints, 114, 50)
         api.SetImage(affinity)
         affinityPrevious = int(api.GetUTF8Text().replace("%","")) #Set initial affinity for incremental scroll
         time.sleep(latency)
         while True:
-            affinity = PullGreyscaleImage(affinityPoints)
+            affinity = PullGreyscaleImage(affinityPoints, 114, 50)
             api.SetImage(affinity)
             affinityCurrent = int(api.GetUTF8Text().replace("%",""))
             if affinityCurrent > affinityPrevious:
@@ -267,13 +281,14 @@ def ReadImageLoop():
             #image grab start
             grabStart = default_timer()
             keep = False
-            effects = PullGreyscaleImage(effectsPoints)
+            effects = PullGreyscaleImage(effectsPoints, 612, 454)
             grabEnd = default_timer()
             grabTime += grabEnd-grabStart
             #image grab end
             #preprocess start
             preprocStart = default_timer()
-            colours = np.array(ImageGrab.grab(bbox = (667,604,669,790))) #image grab
+            colours = np.array(ImageGrab.grab(bbox = colourScanPoints)) #image grab
+            colours = cv2.resize(colours ,(2, 186), 0, 0, interpolation = cv2.INTER_AREA)
             colours = cv2.blur(colours,(3,3))
             symbols = effects.crop(box = (symbolLeft, symbolTop[0], symbolLeft+symbolWidth, symbolTop[5]+symbolHeight))
             symbols = np.array(symbols)
@@ -408,6 +423,11 @@ def ReadImageLoop():
         for img in range (0,problemIndex):
             cv2.imshow("Chaos?", problemClips[img])
             cv2.waitKey(0)
+
+AdjustCoordinates(affinityPoints)
+AdjustCoordinates(effectsPoints)
+AdjustCoordinates(sortPoints)
+AdjustCoordinates(colourScanPoints)
 
 #List for recorded latencies
 latencies = []
