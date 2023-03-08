@@ -6,6 +6,7 @@ import pyautogui
 import time
 import csv
 from timeit import default_timer
+import configparser
 
 csvDict = {}
 
@@ -14,6 +15,62 @@ with open("effects.csv", "r", newline="") as effectscsv:
     fileReader = csv.reader(effectscsv, delimiter=",")
     for i in fileReader:
         csvDict[i[0]] = int(i[1])
+
+#List of recognised keys for pyautogui
+acceptedKeys = ['\t', '\n', '\r', ' ', '!', '"', '#', '$', '%', '&', "'", '(',
+')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7',
+'8', '9', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`',
+'a', 'b', 'c', 'd', 'e','f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~',
+'accept', 'add', 'alt', 'altleft', 'altright', 'apps', 'backspace',
+'browserback', 'browserfavorites', 'browserforward', 'browserhome',
+'browserrefresh', 'browsersearch', 'browserstop', 'capslock', 'clear',
+'convert', 'ctrl', 'ctrlleft', 'ctrlright', 'decimal', 'del', 'delete',
+'divide', 'down', 'end', 'enter', 'esc', 'escape', 'execute', 'f1', 'f10',
+'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f2', 'f20',
+'f21', 'f22', 'f23', 'f24', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9',
+'final', 'fn', 'hanguel', 'hangul', 'hanja', 'help', 'home', 'insert', 'junja',
+'kana', 'kanji', 'launchapp1', 'launchapp2', 'launchmail',
+'launchmediaselect', 'left', 'modechange', 'multiply', 'nexttrack',
+'nonconvert', 'num0', 'num1', 'num2', 'num3', 'num4', 'num5', 'num6',
+'num7', 'num8', 'num9', 'numlock', 'pagedown', 'pageup', 'pause', 'pgdn',
+'pgup', 'playpause', 'prevtrack', 'print', 'printscreen', 'prntscrn',
+'prtsc', 'prtscr', 'return', 'right', 'scrolllock', 'select', 'separator',
+'shift', 'shiftleft', 'shiftright', 'sleep', 'space', 'stop', 'subtract', 'tab',
+'up', 'volumedown', 'volumemute', 'volumeup', 'win', 'winleft', 'winright', 'yen',
+'command', 'option', 'optionleft', 'optionright']
+
+#Importing settings
+config = configparser.ConfigParser()
+config.read("ScannerSettings.ini")
+
+initialDelay = int(config.get("SETTINGS", "initialDelay"))
+
+keyTriangle = str(config.get("SETTINGS", "triangle")).lower()
+keyRightStick = str(config.get("SETTINGS", "rightStickPress")).lower()
+keyRight = str(config.get("SETTINGS", "dpadRight")).lower()
+keyDown = str(config.get("SETTINGS", "dpadDown")).lower()
+
+#Check the keybinds against pyautogui's key list, exit if an unrecognised key is found
+if keyTriangle not in acceptedKeys:
+    print("Key '" + keyTriangle + "' not recognised, exiting in 2s")
+    time.sleep(2)
+    sys.exit()
+
+if keyRightStick not in acceptedKeys:
+    print("Key '" + keyRightStick + "' not recognised, exiting in 2s")
+    time.sleep(2)
+    sys.exit()
+
+if keyDown not in acceptedKeys:
+    print("Key '" + keyDown + "' not recognised, exiting in 2s")
+    time.sleep(2)
+    sys.exit()
+
+if keyRight not in acceptedKeys:
+    print("Key '" + keyRight + "' not recognised, exiting in 2s")
+    time.sleep(2)
+    sys.exit()
 
 #Numeral text to number conversion
 numeralsToNumbers = {
@@ -83,7 +140,7 @@ problemEffectsFull = {
 }
 
 #Initial delay to leave time to open remote play in full screen
-time.sleep(7) #make longer - 10s or so
+time.sleep(initialDelay)
 
 latency = 0.05 #Default, replaced by latency test
 
@@ -162,7 +219,7 @@ def LatencyTest():
     images = []
     times = []
     images.append(ImageGrab.grab(bbox = sortPoints)) #############
-    ds4Input("f")
+    ds4Input(keyRightStick)
     start = default_timer()
     times.append(start)
     for i in range(15):
@@ -195,9 +252,9 @@ def LatencyTest():
 #Scans for the length of the inventory, using Job Affinity sort order as a reference
 def FindInventoryLength():
     #press R3 twice (sort by affinity from new)
-    ds4Input("f")
+    ds4Input(keyRightStick)
     time.sleep(latency)
-    ds4Input("f")
+    ds4Input(keyRightStick)
     time.sleep(latency)
     pages = 1
     increments = 0
@@ -207,12 +264,12 @@ def FindInventoryLength():
         api.SetImage(affinity)
         affinityPrevious = int(api.GetUTF8Text().replace("%","")) #Set initial affinity for page scroll
         #Press down on D-Pad 2x
-        ds4Input("4")
+        ds4Input(keyDown)
         time.sleep(latency)
-        ds4Input("4")
+        ds4Input(keyDown)
         time.sleep(latency)
         #Press right on D-Pad
-        ds4Input("3")
+        ds4Input(keyRight)
         time.sleep(latency)
         while True:
             affinity = PullGreyscaleImage(affinityPoints, 114, 50)
@@ -226,13 +283,13 @@ def FindInventoryLength():
                 affinityPrevious = affinityCurrent #Set current as previous and move onto next number
                 pages += 1
                 #press right on D-Pad
-                ds4Input("3")
+                ds4Input(keyRight)
                 time.sleep(latency)
         #Press down on D-Pad 2x
         time.sleep(latency)
         for page in range(pages):
             #Press right on D-Pad
-            ds4Input("3")
+            ds4Input(keyRight)
             time.sleep(latency)
         affinity = PullGreyscaleImage(affinityPoints, 114, 50)
         api.SetImage(affinity)
@@ -250,16 +307,16 @@ def FindInventoryLength():
                 affinityPrevious = affinityCurrent #Set current as previous and move onto next number
                 increments += 1
                 #press down on D-Pad
-                ds4Input("4")
+                ds4Input(keyDown)
                 time.sleep(latency)
         #Press R3 four times
-        ds4Input("f")
+        ds4Input(keyRightStick)
         time.sleep(latency)
-        ds4Input("f")
+        ds4Input(keyRightStick)
         time.sleep(latency)
-        ds4Input("f")
+        ds4Input(keyRightStick)
         time.sleep(latency)
-        ds4Input("f")
+        ds4Input(keyRightStick)
         time.sleep(latency)
         return itemTotal
 
@@ -401,8 +458,8 @@ def ReadImageLoop():
             #input start
             uiStart = default_timer()
             if keep == False:
-                ds4Input("e")
-            ds4Input("4")
+                ds4Input(keyTriangle)
+            ds4Input(keyDown)
             keep = False
             time.sleep(latency)
             #input end
